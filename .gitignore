@@ -1,0 +1,23 @@
+# 字节码文件
+*.pyc
+*.pyo
+*.pyd
+
+# 编译目录
+__pycache__/
+build/
+dist/
+
+# 虚拟环境
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# 编辑器和IDE相关
+.vscode/
+.idea/
+*.iml
+.DS_Store
