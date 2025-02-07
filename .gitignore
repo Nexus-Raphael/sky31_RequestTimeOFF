@@ -24,3 +24,6 @@ venv.bak/
 
 # 忽略 To_Do.md 文件
 To_Do.md
+
+# 忽略 cat.html 文件
+cat.html

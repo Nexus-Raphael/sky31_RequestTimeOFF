@@ -1,33 +1,35 @@
 from flask import Flask, request, session, jsonify,Blueprint
 from ..database import get_connection
+from ..password_utils import hashlize,check
 import mysql.connector
 import logging
 import pandas as pd
 admin_bp = Blueprint('admin', __name__)
 logging.basicConfig(level=logging.INFO)
-
 @admin_bp.route('/login', methods=['POST'])
 def login():
-    admin_id = request.json.get('admin_id')
-    password = request.json.get('password')
+    admin_id=request.json.get('admin_id')
+    password=request.json.get('password')
 
     if admin_id is None or password is None:
-        return jsonify({"message": "输入错误"}), 401
+        return jsonify({"message":"输入错误"})
 
-    connection = None
-    cursor = None
+    connection=None
+    cursor=None
+
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM admin WHERE admin_id = %s AND pswd_hash = %s', (admin_id, password))
-        user = cursor.fetchone()
+        cursor.execute('select * from admin where admin_id=%s',(admin_id,))
+        result = cursor.fetchone()
 
-        if user is not None:
-            session['admin_id'] = user['admin_id']
-            session['name'] = user['name']
-            return jsonify({"message": "登陆成功"}), 200
+        if result is not None:
+            if(check(password,result['pswd_hash'])):
+                return jsonify({"message":"登录成功"}),200
+            else:
+                return jsonify({"message":"登录失败,密码错误"}),401
         else:
-            return jsonify({"message": "输入错误"}), 401
+            return jsonify({"message":"不存在该用户"}),404
 
     except mysql.connector.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
