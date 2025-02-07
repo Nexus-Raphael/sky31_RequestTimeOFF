@@ -1,10 +1,26 @@
 import bcrypt
 
-def hash_password(password):
+def to_enco(password):
+    encoded=password.encode('utf-8')
+    return encoded
 
-    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+def hashlize(password):
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(to_enco(password), salt)
     return hashed
 
-def verify_password(input_password, stored_password):
+def check(password, hashed):
+    return bcrypt.checkpw(to_enco(password), hashed)
 
-    return bcrypt.checkpw(input_password.encode('utf-8'), stored_password)
+# s=input('输入要存的密码:')
+# hashed1=hashlize(s)
+# print('哈希之后的字节串:',hashed1)
+#
+# str=input('输入要验证的密码:')
+# hashed2=hashlize(str)
+# print('哈希后的验证密码:',hashed2,'\n')
+# print('验证中...')
+# if check(str,hashed1):
+#     print('验证成功!')
+# else:
+#     print('验证失败')
