@@ -21,3 +21,6 @@ venv.bak/
 .idea/
 *.iml
 .DS_Store
+
+# 忽略 To_Do.md 文件
+To_Do.md
