@@ -4,6 +4,7 @@ from ..password_utils import hashlize,check
 import mysql.connector
 import logging
 import pandas as pd
+import openpyxl
 admin_bp = Blueprint('admin', __name__)
 logging.basicConfig(level=logging.INFO)
 @admin_bp.route('/login', methods=['POST'])
@@ -25,6 +26,8 @@ def login():
 
         if result is not None:
             if(check(password,result['pswd_hash'])):
+                session['admin_id'] = result['admin_id']
+                session['name'] = result['name']
                 return jsonify({"message":"登录成功"}),200
             else:
                 return jsonify({"message":"登录失败,密码错误"}),401
@@ -122,6 +125,9 @@ def add_user():
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
+        password=str(password)
+        password=hashlize(password)
+        password=password.decode('utf8')
         cursor.execute('INSERT INTO student (student_id, name, tel, department, role_in_depart, password) VALUES (%s, %s, %s, %s, %s, %s)', (student_id, name, tel, department, role_in_depart, password))
         connection.commit()
         return jsonify({"message": "用户添加成功"}), 200
@@ -211,6 +217,9 @@ def import_users():
                 return jsonify({"message": f"工作表 '{sheet_name}' 缺少必要的列"}), 400
 
             for _, row in df.iterrows():
+                row['password']=str(row['password'])
+                row['password']=hashlize(row['password'])
+                row['password']=row['password'].decode('utf8')
                 cursor.execute(
                     'INSERT INTO student (student_id, name, tel, department, role_in_depart, password) VALUES (%s, %s, %s, %s, %s, %s)',
                     (row['student_id'], row['name'], row['tel'], row['department'], row['role_in_depart'], row['password'])
