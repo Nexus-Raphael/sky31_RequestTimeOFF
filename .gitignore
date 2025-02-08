@@ -27,3 +27,9 @@ To_Do.md
 
 # 忽略 cat.html 文件
 cat.html
+
+#忽略 TEST.py 文件
+TEST.py
+
+#忽略 test.db
+test.db
