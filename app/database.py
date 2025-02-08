@@ -1,13 +1,12 @@
-import mysql.connector
-from flask import current_app
+# import mysql.connector
+#from flask import current_app
+import sqlite3
+import os
 
 def get_connection():
-    connection = mysql.connector.connect(
-        host=current_app.config['MYSQL_HOST'],
-        user=current_app.config['MYSQL_USER'],
-        password=current_app.config['MYSQL_PASSWORD'],
-        database=current_app.config['MYSQL_DB'],
-        charset=current_app.config['MYSQL_CHARSET'],
-        autocommit=current_app.config['MYSQL_AUTOCOMMIT']
-    )
-    return connection
+    # 获取当前文件所在目录
+    # base_dir = os.path.dirname(os.path.abspath(__file__))
+    # # 计算数据库文件的相对路径，回到上一级目录找到数据库文件
+    # db_path = os.path.join(base_dir, '..', 'sky31Employees.db')
+    conn = sqlite3.connect('sky31Employees.db')
+    return conn

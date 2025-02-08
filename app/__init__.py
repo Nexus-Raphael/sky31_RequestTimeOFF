@@ -3,9 +3,7 @@ from app.admin import admin_bp
 from app.user import user_bp
 from app.config import Config
 from app.database import get_connection
-import secrets
 app = Flask(__name__)
-app.secret_key=secrets.token_urlsafe(64)
 app.config.from_object(Config)
 
 
