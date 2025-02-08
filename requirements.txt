@@ -2,3 +2,4 @@ flask
 mysql-connector-python>=9.20
 pandas
 bcrypt
+openpyxl
