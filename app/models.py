@@ -26,7 +26,7 @@ class Wholeave(db.Model):
     __tablename__ = 'wholeaves'
     order = db.Column(db.Integer)
     # 修正这里的类型错误，应该是 Integer 而不是 Intrger
-    id = db.Column(db.Integer, nullable=False)
+    id = db.Column(db.Integer,primary_key=True)
     leave_reason = db.Column(db.String(255))
     check_opinion = db.Column(db.String(255))
     is_permitted = db.Column(db.Integer)
