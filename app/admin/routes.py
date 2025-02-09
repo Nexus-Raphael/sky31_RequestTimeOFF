@@ -24,8 +24,6 @@ def login():
 
     try:
 
-        # g.cursor.execute('select * from admin where admin_id=?',(admin_id,))
-        # result = g.cursor.fetchone()
         admin=Admin.query.get(int(admin_id))
         if admin is not None:
             if(check(password,admin.pswd_hash)):
