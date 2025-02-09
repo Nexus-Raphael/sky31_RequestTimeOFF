@@ -10,8 +10,7 @@ def hashlize(password):
     return hashed
 
 def check(password, hashed):
-    if isinstance(hashed, str):
-        hashed = hashed.encode('utf-8')
+    hashed = hashed.encode('utf-8')
 
     return bcrypt.checkpw(to_enco(password), hashed)
 
