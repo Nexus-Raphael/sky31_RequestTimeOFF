@@ -29,7 +29,7 @@ def login():
         admin=Admin.query.get(int(admin_id))
         if admin is not None:
             if(check(password,admin.pswd_hash)):
-                session['admin_id'] = admin.id
+                session['admin_id'] = admin.admin_id
                 session['name'] = admin.name
                 return jsonify({"message":"登录成功"}),200
             else:
