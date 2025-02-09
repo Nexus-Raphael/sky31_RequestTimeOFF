@@ -1,5 +1,7 @@
 from . import db
 from enum import Enum
+import os
+import datetime
 
 class LeaveStatus(Enum):
     PENDING = 'pending'
@@ -38,3 +40,8 @@ class LeaveApplication(db.Model):
     status = db.Column(db.Enum(LeaveStatus), default=LeaveStatus.PENDING)
     reason = db.Column(db.String(255), nullable=False)
     image_path = db.Column(db.String(255), nullable=False)
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

@@ -1,8 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import secrets
-
+import os
 db = SQLAlchemy()
+
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 def create_app():
     app = Flask(__name__)
@@ -12,8 +16,8 @@ def create_app():
 
     db.init_app(app)
 
-    from app.admin import admin_bp
-    from app.user import user_bp
+    from .admin import admin_bp
+    from .user import user_bp
 
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(user_bp, url_prefix='/user')

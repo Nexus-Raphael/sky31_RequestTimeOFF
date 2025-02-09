@@ -3,7 +3,10 @@ from ..models import db, Student, Event, LeaveApplication
 from ..password_utils import check,hashlize
 import logging
 import sqlite3
-import pandas as pd
+from werkzeug.utils import secure_filename
+import uuid
+import os
+from ..models import allowed_file, UPLOAD_FOLDER
 
 user_bp = Blueprint('user', __name__)
 
@@ -96,17 +99,19 @@ def see_events():
             logging.error(f"数据库错误: {str(e)}")
             return jsonify({"message": f"数据库错误: {str(e)}"}), 500
 
+import uuid
+from flask import request, session, jsonify, Blueprint
+from werkzeug.utils import secure_filename
+
+user_bp = Blueprint('user', __name__)
+
 @user_bp.route('/apply_leave', methods=['POST'])
-#申请请假
-
-
 def apply_leave():
     if 'student_id' not in session:
         return jsonify({"message": "请先登录"}), 401
 
-    event_id = request.json.get('event_id')
-    reason=request.json.get('reason')
-
+    event_id = request.form.get('event_id')
+    reason = request.form.get('reason')
 
     if event_id is None:
         return jsonify({"message": "请提供活动 ID"}), 400
@@ -116,7 +121,20 @@ def apply_leave():
         if event is None:
             return jsonify({"message": "未找到该活动"}), 404
 
-        leave_application = LeaveApplication( event_id=event.id,event_name=event.name,student_name=session['name'],reason=reason,student_department=session['department'])
+        image = request.files.get('image')
+        image_filename = None
+        if image and allowed_file(image.filename):
+            # 生成唯一的文件名
+            filename = secure_filename(str(uuid.uuid4()) + '.' + image.filename.rsplit('.', 1)[1].lower())
+            image.save(os.path.join(UPLOAD_FOLDER, filename))
+            image_filename = filename
+
+        leave_application = LeaveApplication(
+            student_id=session['student_id'],
+            event_id=event.id,
+            reason=reason,
+            image_filename=image_filename
+        )
         db.session.add(leave_application)
         db.session.commit()
         return jsonify({"message": "请假申请已提交"}), 200
@@ -124,9 +142,10 @@ def apply_leave():
         db.session.rollback()
         logging.error(f"数据库错误: {str(e)}")
         return jsonify({"message": f"数据库错误: {str(e)}"}), 500
-
 @user_bp.route('/examine', methods=['GET'])
 # 查看自己发布活动的请假列表
+
+
 def examine():
     if 'student_id' not in session:
         return jsonify({"message": "请先登录"}), 401
