@@ -10,7 +10,6 @@ from ..models import allowed_file
 from app import UPLOAD_FOLDER
 
 user_bp = Blueprint('user', __name__)
-
 logging.basicConfig(level=logging.INFO)
 
 @user_bp.route('/login', methods=['POST'])
@@ -22,7 +21,7 @@ def login():
         return jsonify({"message": "输入错误"}), 401
 
     try:
-        stu=Student.query.get(int(student_id))
+        stu=Student.query.filter_by(student_id=student_id).first()
         if  stu is not None:
             if(check(password,stu.pswd_hash)):
                 session['student_id'] = stu.student_id
@@ -94,25 +93,23 @@ def see_events():
     else:
         try:
             events = Event.query.filter(Event.type==type).all()
-            res=[{"event_name":i.name,"event_type":i.type,"time":i.datetime} for i in events]
-            return jsonify({"events":res}), 200
+            if not events:
+                return jsonify({"message":"暂无活动"})
+            else:
+                res=[{"event_name":i.name,"event_type":i.type,"time":i.datetime} for i in events]
+                return jsonify({"events":res}), 200
         except sqlite3.Error as e:
             logging.error(f"数据库错误: {str(e)}")
             return jsonify({"message": f"数据库错误: {str(e)}"}), 500
 
-import uuid
-from flask import request, session, jsonify, Blueprint
-from werkzeug.utils import secure_filename
-
-user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/apply_leave', methods=['POST'])
 def apply_leave():
     if 'student_id' not in session:
         return jsonify({"message": "请先登录"}), 401
 
-    event_id = request.form.get('event_id')
-    reason = request.form.get('reason')
+    event_id = request.json.get('event_id')
+    reason = request.json.get('reason')
 
     if event_id is None:
         return jsonify({"message": "请提供活动 ID"}), 400
@@ -162,7 +159,7 @@ def see_application():
             return jsonify({"message":"暂无请假记录"})
         else:
             result = [{"event_name": record.event_name, "name": record.student_name, "department": record.student_department,"reason":record.reason} for record in records]
-
+            return jsonify({"result":result}), 200
     except sqlite3.Error as e:
         db.session.rollback()
         logging.error(f"数据库错误: {str(e)}")

@@ -2,16 +2,11 @@ import sqlite3
 from flask import Flask, request, session, jsonify,Blueprint
 from ..models import db,Student,Admin
 from ..password_utils import hashlize,check
-# import mysql.connector
 import logging
 import pandas as pd
-import openpyxl
+
 admin_bp = Blueprint('admin', __name__)
 logging.basicConfig(level=logging.INFO)
-# @admin_bp.before_request
-# def before_request():
-#     g.conn = get_connection()
-#     g.cursor = g.conn.cursor()
 
 
 @admin_bp.route('/login', methods=['POST'])
