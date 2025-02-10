@@ -50,8 +50,7 @@ def query_user_by_department():
         return jsonify({"message": "部门名称参数缺失"}), 400
 
     try:
-        # g.cursor.execute('SELECT * FROM student WHERE department = ?', (department,))
-        # users = g.cursor.fetchall()
+
         users=Student.query.filter_by(department=department).all()
         if not users:
             return jsonify({"message": "未找到该部门的用户"}), 404
@@ -71,8 +70,7 @@ def student_idquery():
         return jsonify({"message": "学号参数缺失"}), 400
 
     try:
-        # g.cursor.execute('SELECT * FROM student WHERE student_id = ?', (student_id,))
-        # users = g.cursor.fetchall()
+
         user=Student.query.filter(Student.student_id==student_id).first()
         if not user:
             return jsonify({"message": "未找到该用户"}), 404
@@ -97,8 +95,6 @@ def add_user():
         password=str(password)
         pswd_hash=hashlize(password)
         pswd_hash=pswd_hash.decode('utf8')
-        # g.cursor.execute('INSERT INTO student (student_id, name, tel, department, role_in_depart, password) VALUES (?,?,?,?,?,?)', (student_id, name, tel, department, role_in_depart, password))
-        # g.connection.commit()
         s=Student(student_id=student_id,name=name,tel=tel,role_in_depart=role_in_depart,department=department,pswd_hash=pswd_hash)
         db.session.add(s)
         db.session.commit()
