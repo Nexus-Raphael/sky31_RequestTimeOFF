@@ -1,4 +1,4 @@
-from flask import Flask, request, session, jsonify,Blueprint
+from flask import Flask,request,session,jsonify,Blueprint
 from ..models import db, Student, Event, LeaveApplication
 from ..password_utils import check,hashlize
 import logging
@@ -6,7 +6,8 @@ import sqlite3
 from werkzeug.utils import secure_filename
 import uuid
 import os
-from ..models import allowed_file, UPLOAD_FOLDER
+from ..models import allowed_file
+from app import UPLOAD_FOLDER
 
 user_bp = Blueprint('user', __name__)
 

@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, request, session, jsonify,Blueprint,g
+from flask import Flask, request, session, jsonify,Blueprint
 from ..models import db,Student,Admin
 from ..password_utils import hashlize,check
 # import mysql.connector
@@ -78,7 +78,7 @@ def student_idquery():
     try:
         # g.cursor.execute('SELECT * FROM student WHERE student_id = ?', (student_id,))
         # users = g.cursor.fetchall()
-        user=Student.query.filter(Student.id==student_id).first()
+        user=Student.query.filter(Student.student_id==student_id).first()
         if not user:
             return jsonify({"message": "未找到该用户"}), 404
 
@@ -104,7 +104,7 @@ def add_user():
         pswd_hash=pswd_hash.decode('utf8')
         # g.cursor.execute('INSERT INTO student (student_id, name, tel, department, role_in_depart, password) VALUES (?,?,?,?,?,?)', (student_id, name, tel, department, role_in_depart, password))
         # g.connection.commit()
-        s=Student(student_id=student_id,name=name,tel=tel,role_in_depart=role_in_depart,pswd_hash=pswd_hash)
+        s=Student(student_id=student_id,name=name,tel=tel,role_in_depart=role_in_depart,department=department,pswd_hash=pswd_hash)
         db.session.add(s)
         db.session.commit()
         return jsonify({"message": "用户添加成功"}), 200
@@ -123,9 +123,7 @@ def update_user():
 
     try:
 
-        # g.cursor.execute('UPDATE student SET name = ?, tel = ?, department = ?, role_in_depart = ? WHERE student_id = ?', (name, tel, department, role_in_depart, student_id))
-        # g.connection.commit()
-        student=Student.query.filter(Student.id==student_id).update({"name":name,"tel":tel,"role_in_depart":role_in_depart,})
+        student=Student.query.filter(Student.id==student_id).update({"name":name,"tel":tel,"role_in_depart":role_in_depart,"department":department})
         db.session.commit()
         return jsonify({"message": "用户修改成功"}), 200
     except sqlite3.Error as e:
@@ -137,9 +135,8 @@ def delete_user():
     student_id = request.json.get('student_id')
 
     try:
-        # g.cursor.execute('DELETE FROM student WHERE student_id = ?', (student_id,))
-        # g.connection.commit()
-        student=Student.query.filter(Student.id==student_id).delete()
+
+        student=Student.query.filter(Student.syudent_id==student_id).delete()
         db.session.commit()
         return jsonify({"message": "用户删除成功"}), 200
     except sqlite3.Error as e:
@@ -174,14 +171,8 @@ def import_users():
                 row['password']=str(row['password'])
                 row['password']=hashlize(row['password'])
                 row['password']=row['password'].decode('utf8')
-        #         g.cursor.execute(
-        #             'INSERT INTO student (student_id, name, tel, department, role_in_depart, password) VALUES (?, ?, ?, ?, ?, ?)',
-        #             (row['student_id'], row['name'], row['tel'], row['department'], row['role_in_depart'], row['password'])
-        #         )
-        #
-        # g.connection.commit()
-        s=Student(student_id=row['student_id'],name=row['name'],tel=row['tel'],department=row['department'],role_in_depart='row[role_in_depart]',pswd_hash=row['password'])
-        db.session.add(s)
+                s=Student(student_id=row['student_id'],name=row['name'],tel=row['tel'],department=row['department'],role_in_depart=row['role_in_depart'],pswd_hash=row['password'])
+                db.session.add(s)
         db.session.commit()
         return jsonify({"message": "用户导入成功"}), 200
 

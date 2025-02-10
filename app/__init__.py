@@ -22,7 +22,7 @@ def create_app():
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(user_bp, url_prefix='/user')
 
-    # 在应用上下文环境中创建数据库表
+    #    在应用上下文环境中创建数据库表
     with app.app_context():
         db.create_all()
 
