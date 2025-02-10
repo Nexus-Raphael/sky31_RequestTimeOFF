@@ -148,6 +148,17 @@ def examine():
     if 'student_id' not in session:
         return jsonify({"message": "请先登录"}), 401
 
+    try:
+        events = Event.query.filter_by(publisher=session['name']).all
+        if not events:
+            return jsonify({"message":"您还发布活动"})
+        else:
+            res=[{"名称":i.name,"类型":i.type,"活动截止时间":i.time} for i in events]
+            return jsonify({"events":res}), 200
+
+    except sqlite3.Error as e:
+        logging.error(f"数据库错误: {str(e)}")
+        return jsonify({"message": f"数据库错误: {str(e)}"}), 500
 @user_bp.route('/see_application', methods=['GET'])
 def see_application():
     if 'student_id' not in session:
@@ -161,7 +172,6 @@ def see_application():
             result = [{"event_name": record.event_name, "name": record.student_name, "department": record.student_department,"reason":record.reason} for record in records]
             return jsonify({"result":result}), 200
     except sqlite3.Error as e:
-        db.session.rollback()
         logging.error(f"数据库错误: {str(e)}")
         return jsonify({"message": f"数据库错误: {str(e)}"}), 500
 
