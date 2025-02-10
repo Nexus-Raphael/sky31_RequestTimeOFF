@@ -8,7 +8,7 @@ import uuid
 import os
 from ..models import allowed_file
 from app import UPLOAD_FOLDER
-
+from datetime import datetime
 user_bp = Blueprint('user', __name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -140,6 +140,37 @@ def apply_leave():
         db.session.rollback()
         logging.error(f"数据库错误: {str(e)}")
         return jsonify({"message": f"数据库错误: {str(e)}"}), 500
+
+@user_bp.route('/publish', methods=['POST'])
+def publish():
+    if 'student_id' not in session:
+        return jsonify({"message": "请先登录"}), 401
+    event_name = request.json.get('event_name')
+    event_type = request.json.get('event_type')
+    event_ddl = request.json.get('event_ddl')
+    if event_name is None or event_type is None:
+        return jsonify({"message":"活动信息缺失"})
+
+    if event_ddl:
+        try:
+            # 解析 event_ddl 为 datetime 对象
+            ddl = datetime.strptime(event_ddl, '%Y-%m-%d %H:%M')
+            # 获取当前时间
+            now = datetime.now()
+            if ddl <= now:
+                return jsonify({"message": "活动截止时间必须在当前时间之后"}), 400
+        except ValueError:
+            return jsonify({"message": "活动截止时间格式错误，应为 YYYY-MM-DD HH:MM"}), 400
+    try:
+        new_event = Event(name=event_name, type=event_type,publisher=session['name'],time=event_ddl)
+        db.session.add(new_event)
+        db.session.commit()
+        return jsonify({"message":"活动发布成功"})
+    except sqlite3.Error as e:
+        db.session.rollback()
+        logging.error(f"数据库错误: {str(e)}")
+        return jsonify({"message": f"数据库错误: {str(e)}"}), 500
+
 @user_bp.route('/examine', methods=['GET'])
 # 查看自己发布活动的请假列表
 
